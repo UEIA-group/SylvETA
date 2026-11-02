@@ -1007,6 +1007,8 @@ public final class SylvETAPlugin extends JavaPlugin implements CommandExecutor, 
         graphics.setColor(Color.WHITE);
         graphics.drawString(name, 8, baseline);
         graphics.drawString("|", 166, baseline);
+        graphics.setColor(destination.arrived ? Color.RED
+                : destination.minutes == 0 ? Color.YELLOW : Color.WHITE);
         graphics.drawString(countdown, 248 - metrics.stringWidth(countdown), baseline);
     }
 
