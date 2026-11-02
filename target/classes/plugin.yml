@@ -1,0 +1,13 @@
+name: SylvETA
+version: 1.0.0
+main: com.sylveta.SylvETAPlugin
+api-version: '26.3'
+description: Map-based arrival boards for metro systems
+commands:
+  eta:
+    description: View and manage metro ETA maps
+    usage: /eta <create|set|arrived|list|delete|line|get|infotext>
+permissions:
+  sylveta.admin:
+    description: Manage ETA boards
+    default: op
