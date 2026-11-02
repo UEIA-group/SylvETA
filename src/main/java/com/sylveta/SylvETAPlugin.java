@@ -282,7 +282,7 @@ public final class SylvETAPlugin extends JavaPlugin implements CommandExecutor, 
             if (minutes < 0) {
                 return;
             }
-            String destinationName = joinDestination(args, 1, args.length - 1);
+            String destinationName = unquoteDestination(joinDestination(args, 1, args.length - 1));
             EtaBoard matchedBoard = null;
             DestinationEta matchedDestination = null;
             int matchCount = 0;
@@ -324,7 +324,7 @@ public final class SylvETAPlugin extends JavaPlugin implements CommandExecutor, 
             sender.sendMessage("No board exists with that id.");
             return;
         }
-        String destinationTarget = joinDestination(args, 2);
+        String destinationTarget = unquoteDestination(joinDestination(args, 2));
         if (isInteger(destinationTarget)) {
             int destinationIndex = Integer.parseInt(destinationTarget) - 1;
             if (destinationIndex < 0 || destinationIndex >= board.destinations.size()) {
@@ -941,10 +941,46 @@ public final class SylvETAPlugin extends JavaPlugin implements CommandExecutor, 
     }
 
     private static List<String> parseDestinations(String text) {
-        return Arrays.stream(text.split("\\|"))
-                .map(String::trim)
-                .filter(destination -> !destination.isEmpty())
-                .toList();
+        List<String> destinations = new ArrayList<>();
+        StringBuilder destination = new StringBuilder();
+        boolean quoted = false;
+        for (int index = 0; index < text.length(); index++) {
+            char character = text.charAt(index);
+            if (character == '"') {
+                quoted = !quoted;
+            } else if (character == '|' && !quoted) {
+                addDestination(destinations, destination);
+            } else {
+                destination.append(character);
+            }
+        }
+        addDestination(destinations, destination);
+        return destinations;
+    }
+
+    private static void addDestination(List<String> destinations, StringBuilder destination) {
+        String name = destination.toString().trim();
+        if (!name.isEmpty()) {
+            destinations.add(name);
+        }
+        destination.setLength(0);
+    }
+
+    private static String unquoteDestination(String text) {
+        StringBuilder destination = new StringBuilder();
+        for (int index = 0; index < text.length(); index++) {
+            char character = text.charAt(index);
+            if (character == '"') {
+                continue;
+            }
+            if (character == '\\' && index + 1 < text.length() && text.charAt(index + 1) == '"') {
+                destination.append('"');
+                index++;
+            } else {
+                destination.append(character);
+            }
+        }
+        return destination.toString().trim();
     }
 
     private static void drawEtaRow(Graphics2D graphics, DestinationEta destination, int baseline) {
